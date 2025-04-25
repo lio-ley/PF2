@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browser Environmental Dashboard</title>
+  <style>
+    /* General Reset */
+    * {
+      box-sizing: border-box;
+    }
+
+    /* Body Styling */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: #f3f4f6; /* Default background color */
+      transition: background-color 0.3s ease; /* Smooth transition for background color change */
+    }
+
+    /* Header Section Styling */
+    .header {
+      background-color: #004085;
+      color: white;
+      padding: 20px;
+      text-align: justify;
+      border-bottom: 5px solid #003366;
+    }
+    .header h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+    .header p {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width: 250px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+
+    .sidebar h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .nav-link {
+      padding: 10px 0;
+      color: #333;
+      cursor: pointer;
+    }
+    .nav-link:hover {
+      color: #007bff;
+    }
+
+    /* Content Styling */
+    .content {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .content h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Info Section Styling */
+    .info {
+      margin-top: 40px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    /* Button Styling */
+    button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 20px; /* Rounded button */
+      cursor: pointer;
+      font-size: 14px; /* Smaller text size */
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:focus {
+      outline: none; /* Remove the outline when focused */
+    }
+
+    /* Media Queries for Background Color Based on Screen Width */
+    /* Mobile (<600px): Blue background */
+    @media (max-width: 599px) {
+      body {
+        background-color: blue;
+      }
+    }
+
+    /* Tablet (600–991px): Green background */
+    @media (min-width: 600px) and (max-width: 991px) {
+      body {
+        background-color: green;
+      }
+    }
+
+    /* Desktop (≥992px): Orange background */
+    @media (min-width: 992px) {
+      body {
+        background-color: orange;
+      }
+    }
+
+    /* Responsive Layout */
+    @media (min-width: 768px) {
+      body {
+        flex-direction: row;
+      }
+
+      .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      }
+    }
+  </style>
+
+  <script>
+    // Function to update the background color based on screen width
+    function updateBackgroundColor() {
+      const width = window.innerWidth;
+      if (width < 600) {
+        document.body.style.backgroundColor = "blue"; // Mobile: Blue
+      } else if (width >= 600 && width <= 991) {
+        document.body.style.backgroundColor = "green"; // Tablet: Green
+      } else {
+        document.body.style.backgroundColor = "orange"; // Desktop: Orange
+      }
+    }
+
+    // Call the updateBackgroundColor function on page load
+    window.onload = function() {
+      updateBackgroundColor();
+      showContent('Home'); // Default to 'Home' content
+    }
+
+    // Call the updateBackgroundColor function on window resize
+    window.onresize = function() {
+      updateBackgroundColor();
+    }
+
+    // Function to display the content based on the selected section
+    function showContent(section) {
+      const content = document.getElementById('main-content');
+
+      if (section === 'Home') {
+        const browserInfo = `
+          <h2>Browser Information</h2>
+          <ul>
+            <li><strong>Browser Name and Version:</strong> ${navigator.appName} ${navigator.appVersion}</li>
+            <li><strong>Platform (OS):</strong> ${navigator.platform}</li>
+            <li><strong>Java Enabled:</strong> ${navigator.javaEnabled() ? 'Yes' : 'No'}</li>
+            <li><strong>Screen Resolution:</strong> ${screen.width} x ${screen.height}</li>
+            <li><strong>Available Screen Size:</strong> ${screen.availWidth} x ${screen.availHeight}</li>
+            <li><strong>Color Depth:</strong> ${screen.colorDepth} bits</li>
+          </ul>
+        `;
+        content.innerHTML = browserInfo;
+      } else if (section === 'Settings') {
+        const settingsInfo = `
+          <h2>Settings</h2>
+          <div class="info">
+            <h3>Page Information and Controls</h3>
+            <p><strong>Current URL:</strong> ${document.URL}</p>
+            <p><strong>Hostname:</strong> ${location.hostname}</p>
+            <p><strong>Page Title:</strong> <span id="page-title-display">${document.title}</span></p>
+            <button onclick="changeTitle()">Change Page Title</button>
+          </div>
+        `;
+        content.innerHTML = settingsInfo;
+      } else {
+        content.innerHTML = `<h2>${section}</h2><p>You selected the ${section} section.</p>`;
+      }
+    }
+
+    // Function to change the page title dynamically
+    function changeTitle() {
+      const newTitle = prompt("Enter a new page title:");
+      if (newTitle) {
+        document.title = newTitle;
+        const titleDisplay = document.getElementById("page-title-display");
+        if (titleDisplay) {
+          titleDisplay.textContent = newTitle;
+        }
+      }
+    }
+
+    // Function to reload the current page
+    function reloadPage() {
+      location.reload();
+    }
+
+    // Function to redirect the user to a new URL
+    function redirectToURL() {
+    // You can set a predefined URL here
+    const url = "https://lio-ley.github.io/lio1/"; // Change this to your desired URL
+    location.href = url; // This will redirect the browser to the specified URL
+    }
+
+    // Function to navigate back in the browser history
+    function navigateBack() {
+      window.history.back();
+    }
+
+    // Function to navigate forward in the browser history
+    function navigateForward() {
+      window.history.forward();
+    }
+  </script>
+</head>
+
+<body>
+  <!-- Profile Information Section -->
+  <div class="header">
+    <h2>Profile Information</h2>
+    <p><strong>Complete Name:</strong> Lio Bhasil B. Cordova</p>
+    <p><strong>Sex:</strong> Male</p>
+    <p><strong>Address:</strong> San Francisco Lagonoy Cam. Sur</p>
+    <p><strong>Course, Year, and Section:</strong> BSIT, 2nd Year, Section A</p>
+    <p><strong>Name of School:</strong> Partido State University</p>
+    <p><strong>Semester and Academic Year:</strong> 2nd Semester, A.Y. 2024–2025</p>
+    <p><strong>Subject Code and Title:</strong> PF2  Event-Driven Programming</p>
+    <p><strong>Name of Subject Instructor:</strong> Mr. Arjay Abio</p>
+  </div>
+
+  <!-- Sidebar Navigation Section -->
+  <div class="sidebar">
+    <h1>Dashboard</h1>
+    <div class="nav-link" onclick="showContent('Home')">Home</div>
+    <div class="nav-link" onclick="showContent('Settings')">Settings</div>
+
+    <!-- Navigation Controls -->
+    <h3>Navigation Controls</h3>
+    <button onclick="reloadPage()">Reload Page</button>
+    <button onclick="redirectToURL()">Redirect to URL</button>
+    <button onclick="navigateBack()">Go Back</button>
+    <button onclick="navigateForward()">Go Forward</button>
+  </div>
+
+  <!-- Main Content Area (Displays selected section content) -->
+  <main class="content" id="main-content">
+    <!-- Home content will be dynamically loaded here by JS -->
+  </main>
+</body>
+</html>
