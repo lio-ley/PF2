@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive DOM Traversal and Manipulation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #f3f3f3;
+      border: 1px solid #ccc;
+    }
+
+    .node {
+      padding: 10px;
+      margin: 5px;
+      border: 2px solid #444;
+      cursor: pointer;
+    }
+
+    .grandparent {
+      background-color: #fbe9e7;
+    }
+
+    .parent {
+      background-color: #ffe0b2;
+      margin-left: 20px;
+    }
+
+    .child {
+      background-color: #e1f5fe;
+      margin-left: 40px;
+    }
+
+    .highlight {
+      border-color: red;
+      box-shadow: 0 0 5px red;
+    }
+
+    .controls {
+      margin-top: 20px;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>Student Profile</h2>
+  <p><strong>Complete Name:</strong> Lio Bhasil B. Cordova</p>
+  <p><strong>Sex:</strong> Male</p>
+  <p><strong>Address:</strong> San Francisco Lagonoy Cam. Sur</p>
+  <p><strong>Course, Year, Section:</strong> BSIT AA</p>
+  <p><strong>Name of School:</strong> Partido State University</p>
+  <p><strong>Semester and Academic Year:</strong> 2nd Semester, A.Y. 2024-2025</p>
+  <p><strong>Subject Code and Title:</strong> PF2- Event-Driven Programming</p>
+  <p><strong>Name of Subject Instructor:</strong> Mr. Arjay Abio</p>
+</header>
+
+<!-- DOM Tree -->
+<div id="tree">
+  <div class="node grandparent" id="grandparent">
+    Grandparent
+    <div class="node parent">
+      Parent 1
+      <div class="node child">Child 1.1</div>
+      <div class="node child">Child 1.2</div>
+    </div>
+    <div class="node parent">
+      Parent 2
+      <div class="node child">Child 2.1</div>
+      <div class="node child">Child 2.2</div>
+    </div>
+  </div>
+</div>
+
+<!-- Control Buttons -->
+<div class="controls">
+  <button onclick="traverseUp()">Traverse Up</button>
+  <button onclick="traverseDown()">Traverse Down</button>
+  <button onclick="traverseNext()">Next Sibling</button>
+  <button onclick="traversePrev()">Previous Sibling</button>
+  <button onclick="addChild()">Add Child</button>
+  <button onclick="deleteNode()">Delete Node</button>
+</div>
+
+<script>
+  let selectedNode = null;
+
+  // Add event listeners to all nodes
+  document.querySelectorAll('.node').forEach(node => {
+    node.addEventListener('click', function (e) {
+      e.stopPropagation(); // Prevent parent click bubbling
+      if (selectedNode) selectedNode.classList.remove('highlight');
+      selectedNode = this;
+      selectedNode.classList.add('highlight');
+    });
+  });
+
+  function traverseUp() {
+    if (!selectedNode) return alert('Select a node first.');
+    let parent = selectedNode.parentElement.closest('.node');
+    if (parent) {
+      selectNode(parent);
+    } else {
+      alert('No parent node.');
+    }
+  }
+
+  function traverseDown() {
+    if (!selectedNode) return alert('Select a node first.');
+    let child = selectedNode.querySelector('.node');
+    if (child) {
+      selectNode(child);
+    } else {
+      alert('No child node.');
+    }
+  }
+
+  function traverseNext() {
+    if (!selectedNode) return alert('Select a node first.');
+    let next = selectedNode.nextElementSibling;
+    if (next && next.classList.contains('node')) {
+      selectNode(next);
+    } else {
+      alert('No next sibling.');
+    }
+  }
+
+  function traversePrev() {
+    if (!selectedNode) return alert('Select a node first.');
+    let prev = selectedNode.previousElementSibling;
+    if (prev && prev.classList.contains('node')) {
+      selectNode(prev);
+    } else {
+      alert('No previous sibling.');
+    }
+  }
+
+  function addChild() {
+    if (!selectedNode) return alert('Select a node first.');
+
+    if (selectedNode.classList.contains('grandparent')) {
+      let parent = document.createElement('div');
+      parent.className = 'node parent';
+      parent.innerHTML = `New Parent
+        <div class="node child">New Child 1</div>
+        <div class="node child">New Child 2</div>`;
+      addNodeEvents(parent);
+      selectedNode.appendChild(parent);
+
+    } else if (selectedNode.classList.contains('parent')) {
+      let child = document.createElement('div');
+      child.className = 'node child';
+      child.innerText = 'New Child';
+      addNodeEvents(child);
+      selectedNode.appendChild(child);
+
+    } else {
+      alert('Cannot add child to a child node.');
+    }
+  }
+
+  function deleteNode() {
+    if (!selectedNode) return alert('Select a node first.');
+    if (selectedNode.classList.contains('grandparent')) {
+      alert('Cannot delete the grandparent node.');
+      return;
+    }
+    let toDelete = selectedNode;
+    selectedNode = null;
+    toDelete.remove();
+  }
+
+  function selectNode(node) {
+    if (selectedNode) selectedNode.classList.remove('highlight');
+    selectedNode = node;
+    selectedNode.classList.add('highlight');
+  }
+
+  function addNodeEvents(node) {
+    node.addEventListener('click', function (e) {
+      e.stopPropagation();
+      selectNode(this);
+    });
+
+    // Add events for all children inside it (if any)
+    node.querySelectorAll('.node').forEach(child => {
+      child.addEventListener('click', function (e) {
+        e.stopPropagation();
+        selectNode(this);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
