@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Canvas Shape Editor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #f1f8e9);
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      background-color: #ffffffcc;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    header h1 {
+      color: #00695c;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      margin: 4px 0;
+      color: #444;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    canvas {
+      border: 3px solid #00695c;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      cursor: crosshair;
+      margin-bottom: 20px;
+    }
+
+    .instructions {
+      background-color: #ffffffcc;
+      border: 1px solid #ccc;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      color: #333;
+    }
+
+    .instructions h2 {
+      margin-top: 0;
+      color: #2e7d32;
+    }
+
+    .instructions ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Interactive Canvas Shape Editor</h1>
+    <p><strong>Complete Name:</strong> Lio Bhasil B. Cordova</p>
+    <p><strong>Sex:</strong> Male</p>
+    <p><strong>Address:</strong> San Francisco Lagonoy Cam. Sur</p>
+    <p><strong>Course, Year, Section:</strong> BSIT 2A</p>
+    <p><strong>Name of School:</strong> Partido State University</p>
+    <p><strong>Semester and Academic Year:</strong> 2nd Semester, A.Y. 2024-2025</p>
+    <p><strong>Subject Code and Title:</strong> PF2- Event-Driven Programming</p>
+    <p><strong>Name of Subject Instructor:</strong> Mr. Arjay Abio</p>
+  </header>
+
+  <main>
+    <!-- Canvas where circles will be drawn -->
+    <canvas id="myCanvas" width="600" height="400"></canvas>
+
+    <!-- Instruction for the interaction -->
+    <div class="instructions">
+      <h2>Instructions</h2>
+      <ul>
+        <li>Click on empty space inside the canvas to add a blue circle.</li>
+        <li>Click on a circle to select it (selected circle turns red).</li>
+        <li>Drag a selected circle with the mouse to move it.</li>
+        <li>Use the mouse wheel to resize the selected circle.</li>
+        <li>Press the <strong>Delete</strong> key to remove the selected circle.</li>
+        <li>Circles cannot be resized smaller than 5 pixels.</li>
+      </ul>
+    </div>
+  </main>
+
+  <script>
+    // Get canvas and drawing context
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // List of circles and interaction states
+    let circles = [];
+    let selectedCircle = null;
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    // Check if a point is inside a given circle
+    function isInsideCircle(x, y, circle) {
+      const dx = x - circle.x;
+      const dy = y - circle.y;
+      return dx * dx + dy * dy <= circle.radius * circle.radius;
+    }
+
+    // Draw all circles to the canvas
+    function drawCircles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      circles.forEach(circle => {
+        ctx.beginPath();
+        ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+        ctx.fillStyle = circle === selectedCircle ? '#e53935' : '#1e88e5'; // red for selected, blue otherwise
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 6;
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset shadow
+      });
+    }
+
+    // Mouse down: select or add circle
+    canvas.addEventListener('mousedown', function (e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      selectedCircle = null;
+      // Check if user clicked on an existing circle
+      for (let i = circles.length - 1; i >= 0; i--) {
+        if (isInsideCircle(x, y, circles[i])) {
+          selectedCircle = circles[i];
+          offsetX = x - selectedCircle.x;
+          offsetY = y - selectedCircle.y;
+          isDragging = true;
+          break;
+        }
+      }
+
+      // If blank space, add a new circle
+      if (!selectedCircle) {
+        circles.push({ x: x, y: y, radius: 20 });
+      }
+
+      drawCircles();
+    });
+
+    // Mouse move: drag selected circle
+    canvas.addEventListener('mousemove', function (e) {
+      if (isDragging && selectedCircle) {
+        const rect = canvas.getBoundingClientRect();
+        selectedCircle.x = e.clientX - rect.left - offsetX;
+        selectedCircle.y = e.clientY - rect.top - offsetY;
+        drawCircles();
+      }
+    });
+
+    // Mouse up: stop dragging
+    canvas.addEventListener('mouseup', function () {
+      isDragging = false;
+    });
+
+    // Mouse wheel: resize selected circle
+    canvas.addEventListener('wheel', function (e) {
+      if (selectedCircle) {
+        e.preventDefault();
+        selectedCircle.radius += e.deltaY < 0 ? 2 : -2;
+        if (selectedCircle.radius < 5) selectedCircle.radius = 5;
+        drawCircles();
+      }
+    });
+
+    // Delete key: remove selected circle
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Delete' && selectedCircle) {
+        circles = circles.filter(c => c !== selectedCircle);
+        selectedCircle = null;
+        drawCircles();
+      }
+    });
+  </script>
+
+</body>
+</html>
